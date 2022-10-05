@@ -9,7 +9,7 @@ red = (255, 0, 0)
 white = (255, 255, 255)
 clear = (0, 0, 0)
 
-#array to store coordinates of the snake
+#array to store coordinates of the snake, 3 and 3 is the starting position so around the middle
 trail = [[3, 3]]
 
 #vector for the direction that the snakes moving in
@@ -21,15 +21,87 @@ length = 1
 #Vector for the apples current position which is random between 0 and 7
 applePos = [random.randint(0, 7), random.randint(0, 7)]
 
-#For storing pixels as 64 long array of the clear colour
+#For storing pixels as 64 long array of the clear / black colour. This pixels will be later manipulated to render the functions of the game
 pixels = [clear] * 64
+
+#define a method thats taking in integer (d) and sets the snakes direction
+def setDirection(d): # 0 = up, 1 = right, 2 = down, 3 = left. Notes how numbers are used for directions
+
+    #make variable direction into a global variable so it can be used inside this method
+    global direction
+
+    if d == 0:
+        direction = [0, -1]
+    elif d == 1:
+        direction = [1, 0]
+    elif d == 2:
+        direction = [0, 1]
+    elif d == 3:
+        direction = [-1, 0]
+        
 
 #Game loop
 while True:
+
+    pixels = [clear] * 64   #at the start of each loop clear to screen by initializing the pixels variable to be all clear / black.
+
+    #for using the joystick to move the snake
+    for event in sense.stick.get_events():
+
+        if event.action == "pressed":
+
+            if event.direction == "up":
+                setDirection(0)
+            elif event.direction == "right":
+                setDirection(1)
+            elif event.direction == "down":
+                setDirection(2)
+            elif event.direction == "left":
+                setDirection(3)
+
+    #move the snakes new coordinate to the start of the array and remove the last element in the array. This gives the illusion of the snake moving and keeps it at the correct length
+    
+    #insterting the first element. This is a little confusing
+    trail.insert(0, [trail[0][0] + direction[0], trail[0][1] + direction[1]])
+
+    #making sure the snake comes out of the opposite side of the led matrix
+    if trail[0][0] < 0: #x coordinates, snake goes out from left side
+        trail[0][0] = 7
+    if trail[0][1] < 0: #same thing for y coordinates. 
+        trail[0][1] = 7
+    if trail[0][0] > 7: #other way around for x
+        trail[0][0] = 0
+    if trail[0][1] > 7: #other way around for y
+        trail[0][1] = 0
+
+    #check if snake is over the apple
+    if trail[0] == applePos: #if the apple is eaten the following happens
+        applePos = [] #apple is assigned to an empty coordinate
+        while applePos == []:
+            applePos = [random.randint(0, 7), random.randint(0, 7)] #assigning apple to a random coordinate
+            if applePos in trail: #ensure the apple is not on the trail of the snake. 
+                applePos = [] #if in trail, applePos goes back to an empty coordinate. While loop goes on until the apple is not on the trail anymore
+        length += 1 #everytime an apple is eaten, snake grows
+    
+    elif trail[0] in trail[1:]: #if the head of the snake collides with any other coordinate of its trail, the length of it goes back to 1
+        length = 1
+
+    else:
+        while len(trail) > length: #when snakes lentgh is larger than it is supposed to be
+            trail.pop() #pop removes the last element of the array
+
+
+    #loop through snakes positions. Needs a loop sinec after eating apples the snake grows and it is going to have multiple positions which all need to be rendered
+    for pos in trail:
+        pixels[pos[1] * 8 + pos[0]] = white
+
     #render the apple. Because apples position is a 2D coordinate but pixels are in a 1D array, the 2D coordonates are converted into a 1D coordinate
     #Formula for doing this is: y * rowSize + x
     pixels[applePos[1] * 8 + applePos[0]] = red
+
     #set the sense hat pixels to be that array 
     sense.set_pixels(pixels)
-    pixels = [clear] * 64   #at the start of each loop clear to screen by initializing the pixels variable to be all clear. 
-    time.sleep(0.15)    #manipulate for faster or slower
+
+    #snakes speed
+    time.sleep(0.15)
+
