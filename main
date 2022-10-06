@@ -18,8 +18,8 @@ direction = [1, 0]
 #integer to store the current length of the snake. 1 by default
 length = 1
 
-#Vector for the apples current position which is random between 0 and 7
-applePos = [random.randint(0, 7), random.randint(0, 7)]
+#Vector for the foods current position which is random between 0 and 7
+foodPos = [random.randint(0, 7), random.randint(0, 7)]
 
 #For storing pixels as 64 long array of the clear / black colour. This pixels will be later manipulated to render the functions of the game
 pixels = [clear] * 64
@@ -60,7 +60,7 @@ while True:
                 setDirection(3)
 
     #move the snakes new coordinate to the start of the array and remove the last element in the array. This gives the illusion of the snake moving and keeps it at the correct length
-    
+
     #insterting the first element. This is a little confusing
     trail.insert(0, [trail[0][0] + direction[0], trail[0][1] + direction[1]])
 
@@ -74,14 +74,14 @@ while True:
     if trail[0][1] > 7: #other way around for y
         trail[0][1] = 0
 
-    #check if snake is over the apple
-    if trail[0] == applePos: #if the apple is eaten the following happens
-        applePos = [] #apple is assigned to an empty coordinate
-        while applePos == []:
-            applePos = [random.randint(0, 7), random.randint(0, 7)] #assigning apple to a random coordinate
-            if applePos in trail: #ensure the apple is not on the trail of the snake. 
-                applePos = [] #if in trail, applePos goes back to an empty coordinate. While loop goes on until the apple is not on the trail anymore
-        length += 1 #everytime an apple is eaten, snake grows
+    #check if snake is over the food
+    if trail[0] == foodPos: #if the food is eaten the following happens
+        foodPos = [] #food is assigned to an empty coordinate
+        while foodPos == []:
+            foodPos = [random.randint(0, 7), random.randint(0, 7)] #assigning food to a random coordinate
+            if foodPos in trail: #ensure the food is not on the trail of the snake. 
+                foodPos = [] #if in trail, foodPos goes back to an empty coordinate. While loop goes on until the food is not on the trail anymore
+        length += 1 #everytime an food is eaten, snake grows
     
     elif trail[0] in trail[1:]: #if the head of the snake collides with any other coordinate of its trail, the length of it goes back to 1
         length = 1
@@ -91,17 +91,16 @@ while True:
             trail.pop() #pop removes the last element of the array
 
 
-    #loop through snakes positions. Needs a loop sinec after eating apples the snake grows and it is going to have multiple positions which all need to be rendered
-    for pos in trail:
-        pixels[pos[1] * 8 + pos[0]] = white
+    #loop through snakes positions. Needs a loop sinec after eating foods the snake grows and it is going to have multiple positions which all need to be rendered
+    for position in trail:
+        pixels[position[1] * 8 + position[0]] = white
 
-    #render the apple. Because apples position is a 2D coordinate but pixels are in a 1D array, the 2D coordonates are converted into a 1D coordinate
+    #render the food. Because foods position is a 2D coordinate but pixels are in a 1D array, the 2D coordonates are converted into a 1D coordinate
     #Formula for doing this is: y * rowSize + x
-    pixels[applePos[1] * 8 + applePos[0]] = red
+    pixels[foodPos[1] * 8 + foodPos[0]] = red
 
-    #set the sense hat pixels to be that array 
+    #set the sense hat pixels to be that array
     sense.set_pixels(pixels)
 
     #snakes speed
     time.sleep(0.15)
-
