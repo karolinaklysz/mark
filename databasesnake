@@ -1,0 +1,13 @@
+import sqlite3
+
+create_table = " CREATE TABLE Scores( Place INT, Number INT);"
+
+with sqlite3.connect("student_db.db") as connection:
+    cursor = connection.cursor()
+    #cursor.execute(create_table)
+    cursor.execute("INSERT INTO Scores VALUES('1', '67');")
+    scores = cursor.execute("SELECT * FROM Scores").fetchall()
+
+for s in scores:
+    print(s)
+    
